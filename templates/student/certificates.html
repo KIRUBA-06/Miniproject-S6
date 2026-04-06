@@ -1,0 +1,59 @@
+﻿{% extends "base.html" %}
+{% block title %}Certificates{% endblock %}
+{% block page_title %}Certificates{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <h3>Upload Certificate</h3>
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="add">
+
+    <label>Certificate File (PDF/JPG/JPEG/PNG)</label>
+    <input type="file" name="certificate_file" required accept=".pdf,.jpg,.jpeg,.png">
+
+    <label>Skill Category</label>
+    <select name="skill_category" required>
+      {% for c in ["Coding","DBMS","Cloud","AI","Communication","Internship"] %}
+      <option value="{{ c }}">{{ c }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Platform Name</label>
+    <input type="text" name="platform_name">
+
+    <label>Completion Date</label>
+    <input type="date" name="completion_date">
+
+    <button class="btn" type="submit">Upload</button>
+  </form>
+</section>
+
+<section class="card">
+  <h3>Uploaded Certificates</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Category</th><th>Platform</th><th>Date</th><th>File</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for c in certificates %}
+      <tr>
+        <td>{{ c.skill_category }}</td>
+        <td>{{ c.platform_name or "-" }}</td>
+        <td>{{ c.completion_date or "-" }}</td>
+        <td><a href="/{{ c.file_path }}" target="_blank">View</a></td>
+        <td>
+          <form method="post" class="inline-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="cert_id" value="{{ c.id }}">
+            <button class="btn btn-danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No certificates uploaded.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

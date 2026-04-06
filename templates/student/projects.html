@@ -1,0 +1,82 @@
+﻿{% extends "base.html" %}
+{% block title %}Projects{% endblock %}
+{% block page_title %}Projects{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <h3>{% if edit_project %}Edit Project{% else %}Add Project{% endif %}</h3>
+  <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="{% if edit_project %}edit{% else %}add{% endif %}">
+    <input type="hidden" name="project_id" value="{{ edit_project.id if edit_project else '' }}">
+
+    <label>Title</label>
+    <input type="text" name="title" value="{{ edit_project.title if edit_project else '' }}" required>
+
+    <label>Domain</label>
+    <select name="domain" required>
+      {% for d in ["Web","AI","ML","App","Cloud","Cybersecurity"] %}
+      <option value="{{ d }}" {% if edit_project and edit_project.domain == d %}selected{% endif %}>{{ d }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Technologies Used</label>
+    <textarea name="technologies_used">{{ edit_project.technologies_used if edit_project else '' }}</textarea>
+
+    <label>Description</label>
+    <textarea name="description">{{ edit_project.description if edit_project else '' }}</textarea>
+
+    <label>GitHub Link</label>
+    <input type="url" name="github_link" value="{{ edit_project.github_link if edit_project else '' }}">
+
+    <label>Live Demo Link</label>
+    <input type="url" name="live_demo_link" value="{{ edit_project.live_demo_link if edit_project else '' }}">
+
+    <label>Project Type</label>
+    <select name="project_type">
+      <option value="">-- Select --</option>
+      {% for p in ["Academic","Personal","Internship"] %}
+      <option value="{{ p }}" {% if edit_project and edit_project.project_type == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Status</label>
+    <select name="status">
+      <option value="">-- Select --</option>
+      {% for s in ["Completed","Ongoing"] %}
+      <option value="{{ s }}" {% if edit_project and edit_project.status == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+
+    <button class="btn" type="submit">{% if edit_project %}Update{% else %}Add{% endif %}</button>
+  </form>
+</section>
+
+<section class="card">
+  <h3>My Projects</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Title</th><th>Domain</th><th>Status</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for p in projects %}
+      <tr>
+        <td>{{ p.title }}</td>
+        <td>{{ p.domain }}</td>
+        <td>{{ p.status or "-" }}</td>
+        <td>
+          <a class="btn btn-secondary" href="{{ url_for('student.projects', edit_id=p.id) }}">Edit</a>
+          <form method="post" class="inline-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="project_id" value="{{ p.id }}">
+            <button class="btn btn-danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4">No projects found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

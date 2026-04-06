@@ -1,0 +1,106 @@
+﻿{% extends "base.html" %}
+{% block title %}Faculty Students{% endblock %}
+{% block page_title %}Faculty Student Monitoring{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <p><strong>Assigned Department:</strong> {{ faculty.department or "All Departments" }}</p>
+  <form method="get">
+    <label>Department</label>
+    <input type="text" name="department" value="{{ filters.department }}">
+    <button class="btn" type="submit">Filter</button>
+  </form>
+</section>
+
+<section class="card">
+  <h3>Low Performance Students</h3>
+  <table class="table">
+    <thead><tr><th>Name</th><th>Department</th><th>Support Reason</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for s in low_performance_students %}
+      <tr>
+        <td>{{ s.full_name or s.user.email }}</td>
+        <td>{{ s.department or '-' }}</td>
+        <td>{{ support_reasons.get(s.id, "Needs review") }}</td>
+        <td>
+          <a class="btn btn-secondary" href="{{ url_for('faculty.students', student_id=s.id, department=filters.department) }}">Track</a>
+          <a class="btn" href="{{ url_for('faculty.feedback', student_id=s.id) }}">Send Feedback</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4">No low performance students currently.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h3>Students</h3>
+  <table class="table">
+    <thead><tr><th>Name</th><th>Dept</th><th>CGPA</th><th>Consistency (7d)</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td>{{ s.full_name or s.user.email }}</td>
+        <td>{{ s.department or '-' }}</td>
+        <td>{{ s.cgpa or '-' }}</td>
+        <td>{{ consistency_map.get(s.id, 0) }}%</td>
+        <td>
+          <a class="btn btn-secondary" href="{{ url_for('faculty.students', student_id=s.id, department=filters.department) }}">View</a>
+          <a class="btn" href="{{ url_for('faculty.feedback', student_id=s.id) }}">Feedback</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No students found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% if selected and details %}
+<section class="card">
+  <h3>{{ selected.full_name or selected.user.email }}</h3>
+  <p><strong>Department:</strong> {{ selected.department or '-' }}</p>
+  <p><strong>Skills:</strong> {{ selected.skills or '-' }}</p>
+  <p><strong>Daily Activity Consistency (7 days):</strong> {{ details.consistency }}%</p>
+
+  <h4>Academic Profile</h4>
+  {% if details.academic_profile %}
+    <p>Semester: {{ details.academic_profile.semester or '-' }} | Section: {{ details.academic_profile.section or '-' }}</p>
+    <p>Current SGPA: {{ details.academic_profile.current_sgpa or '-' }} | Target CGPA: {{ details.academic_profile.target_cgpa or '-' }}</p>
+  {% else %}
+    <p>No academic profile available.</p>
+  {% endif %}
+
+  <h4>Backlogs</h4>
+  <ul>
+    {% for b in details.backlogs %}
+      <li>{{ b.subject_name }} (Sem {{ b.semester or '-' }}) - {{ b.status }}</li>
+    {% else %}
+      <li>No backlog records.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Subject Records</h4>
+  <ul>
+    {% for r in details.subject_records %}
+      <li>
+        {{ r.subject.subject_code if r.subject else "-" }} -
+        {{ r.subject.subject_name if r.subject else "-" }} |
+        GP: {{ r.grade_point }} | Attendance: {{ r.attendance_percent }}%
+      </li>
+    {% else %}
+      <li>No subject records.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Readiness</h4>
+  <ul>
+    {% for r in details.readiness %}
+      <li>{{ r.company.name }}: {{ r.score }}%</li>
+    {% else %}
+      <li>No readiness records.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

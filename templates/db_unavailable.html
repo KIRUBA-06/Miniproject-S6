@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Database Unavailable{% endblock %}
+{% block page_title %}Service Temporarily Unavailable{% endblock %}
+{% block content %}
+<section class="card status-card">
+  <h2>Database Connection Failed</h2>
+  <p>The app cannot connect to the database right now.</p>
+  <p>Verify <code>DATABASE_URL</code> and ensure the database service is running.</p>
+  <div class="actions">
+    <a class="btn" href="{{ retry_url or url_for('index') }}">Retry</a>
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">Go Home</a>
+  </div>
+</section>
+{% endblock %}

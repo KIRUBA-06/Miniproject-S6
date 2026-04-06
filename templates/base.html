@@ -1,0 +1,68 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Career Success Tracker{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="{% if is_authenticated %}auth-page{% else %}public-page{% endif %}">
+  <div class="app-shell">
+    {% if is_authenticated %}
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">Career Tracker</div>
+      <nav>
+        {% if current_role == "student" %}
+          <a href="{{ url_for('student.dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('student.profile') }}">Profile</a>
+          <a href="{{ url_for('student.daily_log') }}">Daily Log</a>
+          <a href="{{ url_for('student.projects') }}">Projects</a>
+          <a href="{{ url_for('student.certificates') }}">Certificates</a>
+          <a href="{{ url_for('student.companies') }}">Companies</a>
+          <a href="{{ url_for('student.assessment') }}">Assessment</a>
+          <a href="{{ url_for('student.readiness') }}">Readiness</a>
+        {% elif current_role == "faculty" %}
+          <a href="{{ url_for('faculty.dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('faculty.students') }}">Students</a>
+        {% else %}
+          <a href="{{ url_for('mentor.dashboard') }}">Admin Dashboard</a>
+          <a href="{{ url_for('mentor.companies') }}">Manage Companies</a>
+          <a href="{{ url_for('mentor.students') }}">Student Monitoring</a>
+          <a href="{{ url_for('mentor.staff') }}">Staff Details</a>
+        {% endif %}
+      </nav>
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-danger w-full" type="submit">Logout</button>
+      </form>
+    </aside>
+    {% endif %}
+
+    <main class="main-content {% if not is_authenticated %}main-public{% endif %}">
+      <header class="topbar">
+        {% if is_authenticated %}
+        <button id="sidebarToggle" class="btn btn-secondary">Menu</button>
+        {% endif %}
+        <h1>{% block page_title %}Career Success Tracker{% endblock %}</h1>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-wrap">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,43 @@
+﻿{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+    <label>Full Name</label>
+    <input type="text" name="full_name" value="{{ student.full_name or '' }}" required>
+
+    <label>Department</label>
+    <input type="text" name="department" value="{{ student.department or '' }}">
+
+    <label>CGPA (0-10)</label>
+    <input type="number" step="0.01" min="0" max="10" name="cgpa" value="{{ student.cgpa or '' }}">
+
+    <label>Skills (comma-separated)</label>
+    <textarea name="skills">{{ student.skills or '' }}</textarea>
+
+    <label>LinkedIn URL</label>
+    <input type="url" name="linkedin_url" value="{{ student.linkedin_url or '' }}">
+
+    <label>GitHub URL</label>
+    <input type="url" name="github_url" value="{{ student.github_url or '' }}">
+
+    <label>Resume (PDF, max 5MB)</label>
+    <input type="file" name="resume" accept=".pdf">
+
+    <label>Profile Picture (JPG/JPEG/PNG, max 5MB)</label>
+    <input type="file" name="profile_pic" accept=".jpg,.jpeg,.png">
+
+    <button class="btn" type="submit">Save Profile</button>
+  </form>
+
+  {% if student.resume_path %}
+    <p>Current Resume: <a href="/{{ student.resume_path }}" target="_blank">Open</a></p>
+  {% endif %}
+  {% if student.profile_pic_path %}
+    <img class="profile-pic" src="/{{ student.profile_pic_path }}" alt="Profile Picture">
+  {% endif %}
+</section>
+{% endblock %}

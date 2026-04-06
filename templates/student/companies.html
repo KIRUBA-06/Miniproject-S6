@@ -1,0 +1,33 @@
+﻿{% extends "base.html" %}
+{% block title %}Companies{% endblock %}
+{% block page_title %}Upcoming Company Drives{% endblock %}
+{% block content %}
+<section class="cards">
+  {% for row in company_rows %}
+    {% set c = row.company %}
+    <article class="card">
+      <h3>{{ c.name }}</h3>
+      <p><strong>Date:</strong> {{ c.drive_date }}</p>
+      <p><strong>Required Skills:</strong> {{ c.required_skills or "-" }}</p>
+      <p><strong>Eligibility:</strong> {{ c.eligibility_criteria or "-" }}</p>
+      <p><strong>Focus Topics:</strong> {{ c.focus_topics or "-" }}</p>
+      <p><strong>Package:</strong> {{ c.package_details or "-" }}</p>
+      <p><strong>Readiness Score:</strong> {{ row.readiness_score }}%</p>
+
+      {% if row.registered %}
+        <button class="btn btn-secondary" disabled>Already Registered</button>
+      {% elif row.eligible %}
+        <form method="post" action="{{ url_for('student.register_company', company_id=c.id) }}">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          <button class="btn" type="submit">Register</button>
+        </form>
+      {% else %}
+        <button class="btn btn-danger" disabled>Not Eligible</button>
+      {% endif %}
+      <a class="btn btn-secondary" href="{{ url_for('student.ranking', company_id=c.id) }}">View Top 10</a>
+    </article>
+  {% else %}
+    <p>No upcoming companies.</p>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+﻿{% extends "base.html" %}
+{% block title %}Faculty Register{% endblock %}
+{% block page_title %}Faculty Registration{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <article class="auth-hero">
+    <p class="auth-kicker">Faculty Access</p>
+    <h2>Create faculty account for academic monitoring and feedback.</h2>
+    <p>Track student academics, identify weak students, and provide personalized feedback.</p>
+    <div class="auth-tags">
+      <span>Academic Tracking</span>
+      <span>Student Feedback</span>
+      <span>Progress Monitoring</span>
+    </div>
+  </article>
+
+  <article class="card auth-card">
+    <h3>Create Faculty Account</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <label>Full Name</label>
+      <input type="text" name="full_name" required maxlength="100">
+      <label>Email</label>
+      <input type="email" name="email" required maxlength="100">
+      <label>Department</label>
+      <input type="text" name="department" maxlength="50">
+      <label>Password</label>
+      <input type="password" name="password" required minlength="8">
+      <button class="btn auth-submit" type="submit">Create Faculty Account</button>
+    </form>
+    <div class="actions">
+      <a class="btn btn-secondary" href="{{ url_for('auth.login') }}">Go to Login</a>
+    </div>
+  </article>
+</section>
+{% endblock %}

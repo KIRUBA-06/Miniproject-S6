@@ -1,0 +1,36 @@
+﻿{% extends "base.html" %}
+{% block title %}Admin Register{% endblock %}
+{% block page_title %}Admin Registration{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <article class="auth-hero">
+    <p class="auth-kicker">Administrator Access</p>
+    <h2>Create admin account for full platform control.</h2>
+    <p>Manage companies, monitor students, upload question banks, and run analytics.</p>
+    <div class="auth-tags">
+      <span>Company Control</span>
+      <span>Ranking Analytics</span>
+      <span>System Oversight</span>
+    </div>
+  </article>
+
+  <article class="card auth-card">
+    <h3>Create Admin Account</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <label>Full Name</label>
+      <input type="text" name="full_name" required maxlength="100">
+      <label>Email</label>
+      <input type="email" name="email" required maxlength="100">
+      <label>Department</label>
+      <input type="text" name="department" maxlength="50">
+      <label>Password</label>
+      <input type="password" name="password" required minlength="8">
+      <button class="btn auth-submit" type="submit">Create Admin Account</button>
+    </form>
+    <div class="actions">
+      <a class="btn btn-secondary" href="{{ url_for('auth.login') }}">Go to Login</a>
+    </div>
+  </article>
+</section>
+{% endblock %}

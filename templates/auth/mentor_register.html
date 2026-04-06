@@ -1,0 +1,43 @@
+﻿{% extends "base.html" %}
+{% block title %}Mentor Register{% endblock %}
+{% block page_title %}Mentor Registration{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <article class="auth-hero">
+    <p class="auth-kicker">Mentor Access</p>
+    <h2>Create mentor access to manage drives and monitor student progress.</h2>
+    <p>Add company drives, upload question banks, and send personalized feedback.</p>
+    <div class="auth-tags">
+      <span>Company Management</span>
+      <span>Student Analytics</span>
+      <span>Feedback System</span>
+    </div>
+  </article>
+
+  <article class="card auth-card">
+    <h3>Create Mentor Account</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+      <label>Full Name</label>
+      <input type="text" name="full_name" placeholder="Mentor full name" required maxlength="100">
+
+      <label>Email</label>
+      <input type="email" name="email" placeholder="mentor@college.edu" required maxlength="100">
+
+      <label>Department</label>
+      <input type="text" name="department" placeholder="CSE / Placement Cell" maxlength="50">
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Minimum 8 characters" required minlength="8">
+
+      <button class="btn auth-submit" type="submit">Create Mentor Account</button>
+    </form>
+
+    <p class="muted">Already have an account?</p>
+    <div class="actions">
+      <a class="btn btn-secondary" href="{{ url_for('auth.login') }}">Go to Login</a>
+    </div>
+  </article>
+</section>
+{% endblock %}

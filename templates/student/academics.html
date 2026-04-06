@@ -1,0 +1,207 @@
+﻿{% extends "base.html" %}
+{% block title %}Academics{% endblock %}
+{% block page_title %}Academic Tracker{% endblock %}
+{% block content %}
+<div class="grid-3">
+  <div class="card">
+    <h3>Estimated CGPA</h3>
+    <p class="metric">{{ snapshot.cgpa_estimate }}</p>
+  </div>
+  <div class="card">
+    <h3>Active Backlogs</h3>
+    <p class="metric">{{ snapshot.active_backlogs }}</p>
+  </div>
+  <div class="card">
+    <h3>Academic Risk</h3>
+    <p class="metric">{{ snapshot.risk }}</p>
+  </div>
+</div>
+
+<section class="grid-2">
+  <div class="card form-card">
+    <h3>Academic Profile</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="update_profile">
+      <label>Section</label>
+      <input type="text" name="section" value="{{ profile.section or '' }}">
+      <label>Semester</label>
+      <input type="number" min="1" max="12" name="semester" value="{{ profile.semester or 1 }}">
+      <label>Regulation</label>
+      <input type="text" name="regulation" value="{{ profile.regulation or '' }}">
+      <label>Graduation Year</label>
+      <input type="number" min="2020" max="2100" name="graduation_year" value="{{ profile.graduation_year or '' }}">
+      <label>Total Credits</label>
+      <input type="number" min="0" name="total_credits" value="{{ profile.total_credits or 0 }}">
+      <label>Credits Completed</label>
+      <input type="number" min="0" name="credits_completed" value="{{ profile.credits_completed or 0 }}">
+      <label>Target CGPA</label>
+      <input type="number" step="0.01" min="0" max="10" name="target_cgpa" value="{{ profile.target_cgpa or '' }}">
+      <button class="btn" type="submit">Save Profile</button>
+    </form>
+  </div>
+
+  <div class="card form-card chart-card">
+    <h3>SGPA Trend</h3>
+    <canvas id="sgpaChart" class="chart-canvas"></canvas>
+    <script id="sgpa-data" type="application/json">{{ sgpa_trend|tojson }}</script>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card form-card">
+    <h3>Add Subject Performance</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="add_subject_record">
+      <label>Subject Code</label>
+      <input type="text" name="subject_code" required>
+      <label>Subject Name</label>
+      <input type="text" name="subject_name" required>
+      <label>Semester</label>
+      <input type="number" name="subject_semester" min="1" max="12" required>
+      <label>Credits</label>
+      <input type="number" name="credits" min="1" max="10" value="3">
+      <label>Type</label>
+      <select name="subject_type">
+        <option value="Theory">Theory</option>
+        <option value="Lab">Lab</option>
+        <option value="Elective">Elective</option>
+      </select>
+      <label>CIA Marks</label>
+      <input type="number" step="0.01" min="0" max="100" name="cia_marks">
+      <label>Assignment Marks</label>
+      <input type="number" step="0.01" min="0" max="100" name="assignment_marks">
+      <label>Lab Marks</label>
+      <input type="number" step="0.01" min="0" max="100" name="lab_marks">
+      <label>Attendance %</label>
+      <input type="number" step="0.01" min="0" max="100" name="attendance_percent">
+      <label>End Sem Marks</label>
+      <input type="number" step="0.01" min="0" max="100" name="end_sem_marks">
+      <label>Grade Point</label>
+      <input type="number" step="0.01" min="0" max="10" name="grade_point">
+      <label>Status</label>
+      <select name="pass_status">
+        <option value="Pending">Pending</option>
+        <option value="Pass">Pass</option>
+        <option value="Fail">Fail</option>
+      </select>
+      <button class="btn" type="submit">Save Subject</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Subject Records</h3>
+    <table class="table">
+      <thead>
+        <tr><th>Code</th><th>Subject</th><th>Sem</th><th>GP</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ r.subject.subject_code if r.subject else '-' }}</td>
+          <td>{{ r.subject.subject_name if r.subject else '-' }}</td>
+          <td>{{ r.subject.semester if r.subject else '-' }}</td>
+          <td>{{ r.grade_point }}</td>
+          <td>{{ r.pass_status }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No subject records yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card form-card">
+    <h3>Backlog Tracker</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="add_backlog">
+      <label>Subject Name</label>
+      <input type="text" name="backlog_subject" required>
+      <label>Semester</label>
+      <input type="number" name="backlog_semester" min="1" max="12">
+      <button class="btn" type="submit">Add Backlog</button>
+    </form>
+
+    <table class="table">
+      <thead><tr><th>Subject</th><th>Sem</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+      {% for b in backlogs %}
+        <tr>
+          <td>{{ b.subject_name }}</td>
+          <td>{{ b.semester or '-' }}</td>
+          <td>{{ b.status }}</td>
+          <td>
+            <form method="post" class="inline-form">
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="toggle_backlog">
+              <input type="hidden" name="backlog_id" value="{{ b.id }}">
+              <button class="btn btn-secondary" type="submit">Toggle</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4">No backlog records.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card form-card">
+    <h3>Academic Calendar + Documents</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="add_event">
+      <label>Event Title</label>
+      <input type="text" name="event_title" required>
+      <label>Event Type</label>
+      <select name="event_type">
+        <option value="Internal">Internal</option>
+        <option value="Assignment">Assignment</option>
+        <option value="Lab Viva">Lab Viva</option>
+        <option value="Semester Exam">Semester Exam</option>
+      </select>
+      <label>Due Date</label>
+      <input type="date" name="due_date" required>
+      <button class="btn" type="submit">Add Event</button>
+    </form>
+
+    <ul>
+      {% for e in events %}
+        <li>{{ e.due_date }} - {{ e.title }} ({{ e.event_type }})</li>
+      {% else %}
+        <li>No upcoming academic events.</li>
+      {% endfor %}
+    </ul>
+
+    <hr>
+
+    <form method="post" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="upload_document">
+      <label>Document Type</label>
+      <select name="doc_type">
+        <option value="Marksheet">Marksheet</option>
+        <option value="Transcript">Transcript</option>
+        <option value="HallTicket">HallTicket</option>
+      </select>
+      <label>Semester</label>
+      <input type="number" name="doc_semester" min="1" max="12">
+      <label>File</label>
+      <input type="file" name="academic_file" accept=".pdf,.jpg,.jpeg,.png" required>
+      <button class="btn" type="submit">Upload Document</button>
+    </form>
+
+    <ul>
+      {% for d in documents %}
+        <li>{{ d.doc_type }} (Sem {{ d.semester or '-' }}) - <a href="/{{ d.file_path }}" target="_blank">View</a></li>
+      {% else %}
+        <li>No documents uploaded.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

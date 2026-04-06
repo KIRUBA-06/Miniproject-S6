@@ -1,0 +1,72 @@
+﻿{% extends "base.html" %}
+{% block title %}Student Dashboard{% endblock %}
+{% block page_title %}Student Dashboard{% endblock %}
+{% block content %}
+<div class="grid-3">
+  <div class="card">
+    <h3>Current Streak</h3>
+    <p class="metric">{{ student.streak_current }}</p>
+  </div>
+  <div class="card">
+    <h3>Longest Streak</h3>
+    <p class="metric">{{ student.streak_longest }}</p>
+  </div>
+  <div class="card">
+    <h3>Badge</h3>
+    <p class="metric">{{ badge }}</p>
+  </div>
+</div>
+
+<section class="card">
+  <h3>Upcoming Drives (Next 30 Days)</h3>
+  <div class="cards scroll-cards">
+    {% for c in upcoming_companies %}
+    <div class="mini-card">
+      <h4>{{ c.name }}</h4>
+      <p>Date: {{ c.drive_date }}</p>
+      <p>Required Skills: {{ c.required_skills or "-" }}</p>
+      <p>Readiness: {{ readiness_map.get(c.id, 0) }}%</p>
+      <a class="btn btn-secondary" href="{{ url_for('student.ranking', company_id=c.id) }}">Ranking</a>
+    </div>
+    {% else %}
+    <p>No upcoming drives in next 30 days.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card chart-card">
+    <h3>Coding/Aptitude Growth</h3>
+    <canvas id="growthChart" class="chart-canvas"></canvas>
+    <script id="growth-data" type="application/json">{{ log_chart|tojson }}</script>
+  </div>
+  <div class="card chart-card">
+    <h3>Company Readiness</h3>
+    <canvas id="readinessChart" class="chart-canvas"></canvas>
+    <script id="readiness-data" type="application/json">{{ readiness_chart|tojson }}</script>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Mentor Feedback</h3>
+  <div class="scroll-list">
+  {% for f in feedbacks %}
+    <div class="list-item">
+      <p>{{ f.feedback }}</p>
+      <small>{{ f.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+    </div>
+  {% else %}
+    <p>No feedback yet.</p>
+  {% endfor %}
+  </div>
+</section>
+
+<section class="card">
+  <h3>Quick Links</h3>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('student.daily_log') }}">Log Today Activity</a>
+    <a class="btn btn-secondary" href="{{ url_for('student.assessment') }}">Take Assessment</a>
+    <a class="btn btn-secondary" href="{{ url_for('student.companies') }}">View Companies</a>
+  </div>
+</section>
+{% endblock %}

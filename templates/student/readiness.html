@@ -1,0 +1,64 @@
+﻿{% extends "base.html" %}
+{% block title %}Readiness{% endblock %}
+{% block page_title %}{% if ranking_mode %}Company Ranking{% else %}Readiness Overview{% endif %}{% endblock %}
+{% block content %}
+
+{% if ranking_mode %}
+<section class="card">
+  <h3>Top 10 Students - {{ company.name }}</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Department</th>
+        <th>CGPA</th>
+        <th>Skills</th>
+        <th>Streak</th>
+        <th>Projects</th>
+        <th>Certificates</th>
+        <th>Readiness</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rankings %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ r.name }}</td>
+        <td>{{ r.department }}</td>
+        <td>{{ r.cgpa }}</td>
+        <td>{{ r.skills }}</td>
+        <td>{{ r.streak }}</td>
+        <td>{{ r.projects }}</td>
+        <td>{{ r.certificates }}</td>
+        <td>{{ r.score }}%</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="9">No ranking data available.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a class="btn" href="{{ url_for('student.readiness') }}">Back to Readiness</a>
+</section>
+{% else %}
+<section class="card">
+  <h3>Company-Wise Readiness</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Company</th><th>Score</th><th>Strengths</th><th>Weak Areas</th><th>Recommendation</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.company.name }}</td>
+        <td>{{ row.score }}%</td>
+        <td>{{ row.strengths|join(", ") if row.strengths else "-" }}</td>
+        <td>{{ row.weak_areas|join(", ") if row.weak_areas else "-" }}</td>
+        <td>{{ row.recommendation }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

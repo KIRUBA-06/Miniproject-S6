@@ -1,0 +1,53 @@
+﻿{% extends "base.html" %}
+{% block title %}Faculty Dashboard{% endblock %}
+{% block page_title %}Faculty Dashboard{% endblock %}
+{% block content %}
+<div class="grid-3">
+  <div class="card">
+    <h3>Monitored Students</h3>
+    <p class="metric">{{ total_students }}</p>
+  </div>
+  <div class="card">
+    <h3>Consistent (7 Days)</h3>
+    <p class="metric">{{ active_students }}</p>
+  </div>
+  <div class="card">
+    <h3>Support Queue</h3>
+    <p class="metric">{{ weak_academic_students|length }}</p>
+  </div>
+</div>
+
+<section class="card">
+  <h3>Assigned Monitoring</h3>
+  <p><strong>Faculty:</strong> {{ faculty.full_name or faculty.user.email }}</p>
+  <p><strong>Assigned Department:</strong> {{ faculty.department or "All Departments" }}</p>
+</section>
+
+<section class="card">
+  <h3>Low Performance / Need Support</h3>
+  <ul>
+    {% for s, sgpa, backlog_count, min_readiness in weak_academic_students %}
+      <li>
+        {{ s.full_name or s.user.email }}
+        | SGPA: {{ '%.2f'|format(sgpa) }}
+        | Backlogs: {{ backlog_count }}
+        | Min Readiness: {{ '%.2f'|format(min_readiness) }}%
+        | <a href="{{ url_for('faculty.feedback', student_id=s.id) }}">Send Support Feedback</a>
+      </li>
+    {% else %}
+      <li>No academic risk students currently.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="card">
+  <h3>Daily Activity Consistency (&lt;70%)</h3>
+  <ul>
+    {% for s, consistency in consistency_risk %}
+      <li>{{ s.full_name or s.user.email }} - {{ consistency }}% (last 7 days)</li>
+    {% else %}
+      <li>No consistency risk students.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

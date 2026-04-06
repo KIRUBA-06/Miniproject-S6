@@ -1,0 +1,62 @@
+﻿{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block page_title %}Login{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <article class="auth-hero">
+    <p class="auth-kicker">Placement Preparation Suite</p>
+    <h2>Track readiness, improve daily, and crack campus drives.</h2>
+    <p>Use your student, faculty, or admin account to access your dashboard.</p>
+    <div class="auth-tags">
+      <span>Company Readiness</span>
+      <span>Adaptive Assessment</span>
+      <span>Academic + Placement</span>
+    </div>
+  </article>
+
+  <article class="card auth-card">
+    <h3>Sign In</h3>
+    <div class="role-toggle" role="tablist" aria-label="Choose login role">
+      <button class="role-pill active" type="button" data-role="student">Student</button>
+      <button class="role-pill" type="button" data-role="faculty">Faculty</button>
+      <button class="role-pill" type="button" data-role="admin">Admin</button>
+    </div>
+
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="role" id="loginRole" value="student">
+
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@example.com" required>
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter password" required minlength="8">
+
+      <button class="btn auth-submit" type="submit">Login</button>
+    </form>
+
+    <p class="muted">Need an account?</p>
+    <div class="actions">
+      <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">Student Register</a>
+      <a class="btn btn-secondary" href="{{ url_for('auth.faculty_register') }}">Faculty Register</a>
+      <a class="btn btn-secondary" href="{{ url_for('auth.admin_register') }}">Admin Register</a>
+    </div>
+
+    <div class="demo-note">
+      <strong>Demo Admin:</strong> admin@college.com / Admin@123
+    </div>
+  </article>
+</section>
+
+<script>
+  const roleButtons = document.querySelectorAll(".role-pill");
+  const roleInput = document.getElementById("loginRole");
+  roleButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      roleButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      roleInput.value = btn.dataset.role || "student";
+    });
+  });
+</script>
+{% endblock %}

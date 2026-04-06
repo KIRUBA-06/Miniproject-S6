@@ -1,0 +1,26 @@
+﻿{% extends "base.html" %}
+{% block title %}Faculty Feedback{% endblock %}
+{% block page_title %}Faculty Feedback{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <h3>Feedback for {{ student.full_name or student.user.email }}</h3>
+  <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label>Feedback</label>
+    <textarea name="feedback" required></textarea>
+    <button class="btn" type="submit">Send Feedback</button>
+  </form>
+</section>
+
+<section class="card">
+  <h3>History</h3>
+  {% for f in feedback_list %}
+    <div class="list-item">
+      <p>{{ f.feedback }}</p>
+      <small>{{ f.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+    </div>
+  {% else %}
+    <p>No feedback yet.</p>
+  {% endfor %}
+</section>
+{% endblock %}

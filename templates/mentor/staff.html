@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Staff Details{% endblock %}
+{% block page_title %}Staff Details{% endblock %}
+{% block content %}
+<div class="grid-2">
+  <section class="card form-card">
+    <h3>Add Faculty</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="add_faculty">
+      <label>Full Name</label>
+      <input type="text" name="full_name" required>
+      <label>Email</label>
+      <input type="email" name="email" required>
+      <label>Department</label>
+      <input type="text" name="department" list="faculty-departments" placeholder="CSE / IT / ECE">
+      <datalist id="faculty-departments">
+        {% for d in staff_departments %}
+        <option value="{{ d }}"></option>
+        {% endfor %}
+      </datalist>
+      <label>Password</label>
+      <input type="password" name="password" minlength="8" required>
+      <button class="btn" type="submit">Create Faculty</button>
+    </form>
+  </section>
+
+  <section class="card form-card">
+    <h3>Add Admin</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="add_admin">
+      <label>Full Name</label>
+      <input type="text" name="full_name" required>
+      <label>Email</label>
+      <input type="email" name="email" required>
+      <label>Department</label>
+      <input type="text" name="department" placeholder="Placement Cell">
+      <label>Password</label>
+      <input type="password" name="password" minlength="8" required>
+      <button class="btn btn-secondary" type="submit">Create Admin</button>
+    </form>
+  </section>
+</div>
+
+<section class="card">
+  <h3>Faculty List</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Assigned Dept</th><th>Students</th><th>Weak Students</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for f in faculties %}
+      <tr>
+        <td>{{ f.full_name or "-" }}</td>
+        <td>{{ f.user.email }}</td>
+        <td>
+          <form method="post" class="inline-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="update_faculty_department">
+            <input type="hidden" name="faculty_id" value="{{ f.id }}">
+            <input type="text" name="department" value="{{ f.department or '' }}" placeholder="Department">
+            <button class="btn btn-secondary" type="submit">Assign</button>
+          </form>
+        </td>
+        <td>{{ faculty_stats.get(f.id, {}).get("monitored_students", 0) }}</td>
+        <td>{{ faculty_stats.get(f.id, {}).get("weak_students", 0) }}</td>
+        <td>
+          <a class="btn" href="{{ url_for('mentor.students', department=f.department) }}">View Dept Students</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No faculty available.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h3>Admin List</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Department</th></tr>
+    </thead>
+    <tbody>
+      {% for a in admins %}
+      <tr>
+        <td>{{ a.full_name or "-" }}</td>
+        <td>{{ a.user.email }}</td>
+        <td>{{ a.department or "-" }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3">No admins available.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

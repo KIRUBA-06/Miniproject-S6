@@ -1,0 +1,94 @@
+﻿{% extends "base.html" %}
+{% block title %}Manage Companies{% endblock %}
+{% block page_title %}Company Management{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <h3>Add Company</h3>
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="add">
+    <label>Name</label><input type="text" name="name" required>
+    <label>Drive Date</label><input type="date" name="drive_date">
+    <label>Required Skills (comma-separated)</label><textarea name="required_skills"></textarea>
+    <label>Eligibility Criteria</label><textarea name="eligibility_criteria"></textarea>
+    <label>Focus Topics</label><textarea name="focus_topics"></textarea>
+    <label>Package Details</label><input type="text" name="package_details">
+    <label>Logo (jpg/jpeg/png)</label><input type="file" name="logo" accept=".jpg,.jpeg,.png">
+    <button class="btn" type="submit">Add Company</button>
+  </form>
+</section>
+
+<section class="card">
+  <h3>Existing Companies</h3>
+  {% for c in companies %}
+  <div class="list-item">
+    <form method="post" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="edit">
+      <input type="hidden" name="company_id" value="{{ c.id }}">
+      <input type="text" name="name" value="{{ c.name }}" required>
+      <input type="date" name="drive_date" value="{{ c.drive_date }}">
+      <input type="text" name="required_skills" value="{{ c.required_skills or '' }}">
+      <input type="text" name="eligibility_criteria" value="{{ c.eligibility_criteria or '' }}">
+      <input type="text" name="focus_topics" value="{{ c.focus_topics or '' }}">
+      <input type="text" name="package_details" value="{{ c.package_details or '' }}">
+      <button class="btn btn-secondary" type="submit">Save</button>
+    </form>
+    <form method="post" class="inline-form">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="delete">
+      <input type="hidden" name="company_id" value="{{ c.id }}">
+      <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+  </div>
+  {% else %}
+  <p>No companies added.</p>
+  {% endfor %}
+</section>
+
+<section class="card form-card">
+  <h3>Add Question (Manual)</h3>
+  <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="add_question">
+    <label>Company</label>
+    <select name="company_id">
+      <option value="">General</option>
+      {% for c in companies %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+    </select>
+    <label>Skill Category</label><input type="text" name="skill_category" required>
+    <label>Question Type</label>
+    <select name="question_type">
+      <option value="MCQ">MCQ</option>
+      <option value="Aptitude">Aptitude</option>
+      <option value="Coding">Coding</option>
+    </select>
+    <label>Question Text</label><textarea name="question_text" required></textarea>
+    <label>Options (use | separator)</label><input type="text" name="options" placeholder="A|B|C|D">
+    <label>Correct Answer</label><input type="text" name="correct_answer">
+    <label>Difficulty</label>
+    <select name="difficulty">
+      <option value="Easy">Easy</option>
+      <option value="Medium">Medium</option>
+      <option value="Hard">Hard</option>
+    </select>
+    <button class="btn" type="submit">Add Question</button>
+  </form>
+</section>
+
+<section class="card form-card">
+  <h3>Upload Question Bank CSV</h3>
+  <p>CSV columns: skill_category, question_type, question_text, option_a, option_b, option_c, option_d, correct_answer, difficulty</p>
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="upload_csv">
+    <label>Company</label>
+    <select name="company_id">
+      <option value="">General</option>
+      {% for c in companies %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+    </select>
+    <input type="file" name="questions_csv" accept=".csv" required>
+    <button class="btn" type="submit">Upload CSV</button>
+  </form>
+</section>
+{% endblock %}

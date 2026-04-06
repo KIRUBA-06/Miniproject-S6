@@ -1,0 +1,43 @@
+﻿{% extends "base.html" %}
+{% block title %}Student Register{% endblock %}
+{% block page_title %}Student Registration{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <article class="auth-hero">
+    <p class="auth-kicker">Student Onboarding</p>
+    <h2>Create your account and start building your placement profile.</h2>
+    <p>Track logs, assessments, company readiness, projects, and certificates in one place.</p>
+    <div class="auth-tags">
+      <span>Daily Streak</span>
+      <span>Skill Analytics</span>
+      <span>Mentor Feedback</span>
+    </div>
+  </article>
+
+  <article class="card auth-card">
+    <h3>Create Student Account</h3>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+      <label>Full Name</label>
+      <input type="text" name="full_name" placeholder="Enter full name" required maxlength="100">
+
+      <label>Email</label>
+      <input type="email" name="email" placeholder="name@college.edu" required maxlength="100">
+
+      <label>Department</label>
+      <input type="text" name="department" placeholder="CSE / IT / ECE" maxlength="50">
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Minimum 8 characters" required minlength="8">
+
+      <button class="btn auth-submit" type="submit">Create Account</button>
+    </form>
+
+    <p class="muted">Already have an account?</p>
+    <div class="actions">
+      <a class="btn btn-secondary" href="{{ url_for('auth.login') }}">Go to Login</a>
+    </div>
+  </article>
+</section>
+{% endblock %}

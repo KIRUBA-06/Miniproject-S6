@@ -1,0 +1,65 @@
+﻿{% extends "base.html" %}
+{% block title %}Assessment{% endblock %}
+{% block page_title %}Adaptive Assessment{% endblock %}
+{% block content %}
+
+{% if mode == "result" %}
+<section class="card">
+  <h3>Assessment Result</h3>
+  <p>Score: <strong>{{ result.score }}/{{ result.max_score }}</strong></p>
+  <h4>Skill Breakdown</h4>
+  <ul>
+    {% for k, v in result.breakdown.items() %}
+      <li>{{ k }}: {{ v }}%</li>
+    {% endfor %}
+  </ul>
+  <p><strong>Weak Areas:</strong> {{ result.weak_areas|join(", ") if result.weak_areas else "None" }}</p>
+  <p><strong>Suggestions:</strong> {{ result.suggestions }}</p>
+  <a class="btn" href="{{ url_for('student.assessment') }}">Take Another Assessment</a>
+</section>
+{% else %}
+<section class="card form-card">
+  <form method="get">
+    <label>Target Company (Optional)</label>
+    <select name="company_id">
+      <option value="">General</option>
+      {% for c in companies %}
+      <option value="{{ c.id }}" {% if selected_company_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-secondary" type="submit">Regenerate Questions</button>
+  </form>
+</section>
+
+<section class="card">
+  <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="company_id" value="{{ selected_company_id or '' }}">
+
+    {% for q in questions %}
+      <div class="question-box">
+        <p><strong>Q{{ loop.index }} [{{ q.skill_category }} - {{ q.difficulty or "Medium" }}]</strong> {{ q.question_text }}</p>
+        <input type="hidden" name="question_ids" value="{{ q.id }}">
+
+        {% if q.options %}
+          {% for opt in q.options %}
+            <label class="radio">
+              <input type="radio" name="answer_{{ q.id }}" value="{{ opt }}" required>
+              {{ opt }}
+            </label>
+          {% endfor %}
+        {% else %}
+          <input type="text" name="answer_{{ q.id }}" required placeholder="Enter answer">
+        {% endif %}
+      </div>
+    {% else %}
+      <p>No questions available. Ask mentor to upload question bank.</p>
+    {% endfor %}
+
+    {% if questions %}
+      <button class="btn" type="submit">Submit Assessment</button>
+    {% endif %}
+  </form>
+</section>
+{% endif %}
+{% endblock %}

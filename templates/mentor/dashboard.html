@@ -1,0 +1,68 @@
+﻿{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="grid-3">
+  <div class="card">
+    <h3>Total Students</h3>
+    <p class="metric">{{ total_students }}</p>
+  </div>
+  <div class="card">
+    <h3>Active Students (7 days)</h3>
+    <p class="metric">{{ active_students }}</p>
+  </div>
+  <div class="card">
+    <h3>Upcoming Drives</h3>
+    <p class="metric">{{ upcoming_drives }}</p>
+  </div>
+  <div class="card">
+    <h3>Total Faculty</h3>
+    <p class="metric">{{ total_faculty }}</p>
+  </div>
+  <div class="card">
+    <h3>Total Admins</h3>
+    <p class="metric">{{ total_admins }}</p>
+  </div>
+</div>
+
+<section class="card">
+  <h3>Academic Risk Students</h3>
+  <p class="metric">{{ academic_risk_students }}</p>
+  <p>Students with low SGPA/CGPA trend or active backlogs.</p>
+</section>
+
+<section class="card">
+  <h3>Weak Students (Readiness &lt; 40%)</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Student</th><th>Department</th><th>Readiness</th></tr>
+    </thead>
+    <tbody>
+      {% for student, score in weak_students %}
+      <tr>
+        <td>{{ student.full_name or student.user.email }}</td>
+        <td>{{ student.department or "-" }}</td>
+        <td>{{ score.score }}%</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3">No weak students currently.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h3>Key Upcoming Companies</h3>
+  <div class="cards">
+    {% for c in key_companies %}
+    <div class="mini-card">
+      <h4>{{ c.name }}</h4>
+      <p>Date: {{ c.drive_date }}</p>
+      <p>Skills: {{ c.required_skills or "-" }}</p>
+    </div>
+    {% else %}
+    <p>No upcoming companies.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

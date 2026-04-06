@@ -1,0 +1,156 @@
+﻿{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+{% block page_title %}Student Monitoring{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <form method="get">
+    <label>Department</label>
+    <input type="text" name="department" value="{{ filters.department }}">
+    <label>Skill</label>
+    <input type="text" name="skill" value="{{ filters.skill }}">
+    <button class="btn" type="submit">Filter</button>
+  </form>
+</section>
+
+<section class="card">
+  <h3>All Students</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Name</th><th>Dept</th><th>CGPA</th><th>Consistency (7d)</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td>{{ s.full_name or s.user.email }}</td>
+        <td>{{ s.department or "-" }}</td>
+        <td>{{ s.cgpa or "-" }}</td>
+        <td>{{ consistency_map.get(s.id, 0) }}%</td>
+        <td>
+          <a class="btn btn-secondary" href="{{ url_for('mentor.students', student_id=s.id, department=filters.department, skill=filters.skill) }}">View</a>
+          <a class="btn" href="{{ url_for('mentor.feedback', student_id=s.id) }}">Feedback</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No students found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% if selected and details %}
+<section class="card">
+  <h3>Details: {{ selected.full_name or selected.user.email }}</h3>
+  <p><strong>Department:</strong> {{ selected.department or "-" }}</p>
+  <p><strong>Skills:</strong> {{ selected.skills or "-" }}</p>
+  <p><strong>Consistency (Last 7 Days):</strong> {{ details.consistency }}%</p>
+  <p><strong>Streak:</strong> {{ selected.streak_current }} (Longest: {{ selected.streak_longest }})</p>
+
+  <h4>Daily Logs (Last 14)</h4>
+  <ul>
+    {% for l in details.logs %}
+      <li>{{ l.log_date }} - Coding {{ l.coding_hours }}h, Aptitude {{ l.aptitude_hours }}h</li>
+    {% else %}
+      <li>No logs available.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Projects</h4>
+  <ul>
+    {% for p in details.projects %}
+      <li>{{ p.title }} ({{ p.domain }}) - {{ p.status or "-" }}</li>
+    {% else %}
+      <li>No projects.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Certificates</h4>
+  <ul>
+    {% for c in details.certificates %}
+      <li>{{ c.skill_category }} - {{ c.platform_name or "-" }}</li>
+    {% else %}
+      <li>No certificates.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Readiness Scores</h4>
+  <ul>
+    {% for r in details.readiness %}
+      <li>{{ r.company.name }}: {{ r.score }}%</li>
+    {% else %}
+      <li>No readiness records.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Assessments</h4>
+  <ul>
+    {% for a in details.assessments %}
+      <li>{{ a.assessment_date }} - {{ a.total_score }}/{{ a.max_score }} (Weak: {{ a.weak_areas or "None" }})</li>
+    {% else %}
+      <li>No assessments.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Academic Profile</h4>
+  {% if details.academic_profile %}
+    <p>Semester: {{ details.academic_profile.semester or "-" }} | Section: {{ details.academic_profile.section or "-" }}</p>
+    <p>Regulation: {{ details.academic_profile.regulation or "-" }} | Target CGPA: {{ details.academic_profile.target_cgpa or "-" }}</p>
+  {% else %}
+    <p>No academic profile data.</p>
+  {% endif %}
+
+  <h4>Subject Performance</h4>
+  <ul>
+    {% for r in details.subject_records %}
+      <li>{{ r.subject.subject_code if r.subject else "-" }} - {{ r.subject.subject_name if r.subject else "-" }} | GP: {{ r.grade_point }} | {{ r.pass_status }}</li>
+    {% else %}
+      <li>No subject records.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Backlogs</h4>
+  <ul>
+    {% for b in details.backlogs %}
+      <li>{{ b.subject_name }} (Sem {{ b.semester or "-" }}) - {{ b.status }}</li>
+    {% else %}
+      <li>No backlog records.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="card">
+  <h3>Weak Students (Readiness &lt; 40)</h3>
+  <ul>
+    {% for s, r in weak_students %}
+      <li>{{ s.full_name or s.user.email }} - {{ r.company.name }}: {{ r.score }}%</li>
+    {% else %}
+      <li>No weak students.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="card">
+  <h3>Academic Weak Students</h3>
+  <ul>
+    {% for s in weak_academic_students %}
+      <li>{{ s.full_name or s.user.email }} - {{ s.department or "-" }}</li>
+    {% else %}
+      <li>No academic risk students.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="card">
+  <h3>Top 10 Per Company</h3>
+  {% for c in companies %}
+    <h4>{{ c.name }}</h4>
+    <ol>
+      {% for s, r in top_per_company[c.id] %}
+        <li>{{ s.full_name or s.user.email }} - {{ r.score }}%</li>
+      {% else %}
+        <li>No data</li>
+      {% endfor %}
+    </ol>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+﻿{% extends "base.html" %}
+{% block title %}Daily Log{% endblock %}
+{% block page_title %}Daily Activity Log{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+    {% set data = existing_today %}
+    <div class="checklist">
+    {% for field, label in [
+      ("coding_hours","Coding"),
+      ("aptitude_hours","Aptitude"),
+      ("oops_hours","OOPS"),
+      ("dbms_hours","DBMS"),
+      ("os_hours","OS"),
+      ("networks_hours","Networks"),
+      ("communication_hours","Communication"),
+      ("mock_interview_hours","Mock Interview")
+    ] %}
+      <label class="check-item">
+        <span>Did {{ label }} today</span>
+        <input type="checkbox" name="{{ field }}" value="1"
+          {% if data and data[field] and data[field] > 0 %}checked{% endif %}>
+      </label>
+    {% endfor %}
+    </div>
+
+    <button class="btn" type="submit">Save Log</button>
+  </form>
+</section>
+{% endblock %}
