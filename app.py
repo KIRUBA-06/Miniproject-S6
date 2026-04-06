@@ -6,7 +6,7 @@ from datetime import date, timedelta
 import click
 from flask import Flask, render_template, redirect, url_for, session, request, abort
 from flask_login import current_user
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, ProgrammingError, SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from config import Config
@@ -35,13 +35,17 @@ def create_app():
     app.register_blueprint(mentor_bp)
     app.register_blueprint(faculty_bp)
 
-    def _ensure_sqlite_db():
-        uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
-        if uri.startswith("sqlite"):
-            with app.app_context():
+    def _ensure_database_schema():
+        if not app.config.get("AUTO_INIT_DB", False):
+            return
+        with app.app_context():
+            try:
                 db.create_all()
+                app.logger.info("Database schema ensured on startup.")
+            except SQLAlchemyError as exc:
+                app.logger.exception("Database schema initialization failed: %s", exc)
 
-    _ensure_sqlite_db()
+    _ensure_database_schema()
 
     def generate_csrf_token():
         if "_csrf_token" not in session:
@@ -372,8 +376,16 @@ def create_app():
             print("Login password for all demo students: Student@123")
 
     @app.errorhandler(OperationalError)
+    @app.errorhandler(ProgrammingError)
     def handle_db_operational_error(_error):
-        app.logger.exception("Database OperationalError: %s", _error)
+        app.logger.exception("Database error: %s", _error)
+        db.session.rollback()
+        retry_url = request.referrer or url_for("index")
+        return render_template("db_unavailable.html", retry_url=retry_url), 503
+
+    @app.errorhandler(SQLAlchemyError)
+    def handle_sqlalchemy_error(_error):
+        app.logger.exception("SQLAlchemy error: %s", _error)
         db.session.rollback()
         retry_url = request.referrer or url_for("index")
         return render_template("db_unavailable.html", retry_url=retry_url), 503

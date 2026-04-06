@@ -37,7 +37,7 @@ pip install -r requirements.txt
 3. Configure env vars:
 ```powershell
 $env:SECRET_KEY="your-strong-secret-key"
-$env:DATABASE_URL="mysql://root:password@localhost/career_success_tracker"
+$env:DATABASE_URL="mysql+pymysql://root:password@localhost/career_success_tracker"
 ```
 
 4. Initialize DB:
@@ -49,6 +49,12 @@ flask --app app.py init-db
 ```bash
 flask --app app.py run
 ```
+
+## Render Deployment Notes
+- Set `SECRET_KEY` in Render environment variables.
+- Set `DATABASE_URL` using `mysql+pymysql://...`
+- `AUTO_INIT_DB=true` is enabled by default, so the app attempts to create tables on startup.
+- If deployment still fails, check Render logs for database host/username/password issues.
 
 ## Mentor Creation
 Mentor accounts are created manually in DB as specified.
