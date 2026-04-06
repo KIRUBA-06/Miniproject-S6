@@ -154,8 +154,7 @@ def login():
             flash("Invalid credentials.", "danger")
             return render_template("auth/login.html")
         if role and user.role != role:
-            flash("Invalid role selected for this account.", "danger")
-            return render_template("auth/login.html")
+            flash(f"Logged in with your {user.role} account.", "info")
 
         login_user(user)
         flash("Login successful.", "success")

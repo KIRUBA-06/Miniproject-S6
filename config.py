@@ -22,6 +22,7 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     AUTO_INIT_DB = os.getenv("AUTO_INIT_DB", "true").lower() in {"1", "true", "yes", "on"}
+    AUTO_SEED_DEMO = os.getenv("AUTO_SEED_DEMO", "true").lower() in {"1", "true", "yes", "on"}
 
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024
     UPLOAD_FOLDER = os.path.join("static", "uploads")
